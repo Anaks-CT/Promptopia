@@ -6,29 +6,39 @@ import React, { useEffect, useState } from "react";
 
 const EditPrompt = () => {
   const router = useRouter();
-  const { data: session } = useSession();
   const searchParams = useSearchParams()
-  const promptID = searchParams.get('id')
+  const promptId = searchParams.get('id')
 
   const [submitting, setIsSubmitting] = useState(false);
   const [post, setPost] = useState({ prompt: "", tag: "" }); 
 
   useEffect(() => {
+    const getPromptDetails = async () =>{
+      const response = await fetch(`/api/prompt/${promptId}`)
+      const data = await response.json()
 
+      setPost({
+        prompt: data.prompt,
+        tag: data.tag
+      })
+    }
+
+    if(promptId) getPromptDetails()
   }, [promptId])
 
-  const createPrompt = async (e) => {
+  const updatePrompt = async (e) => {
     e.preventDefault();
 
     // for loading purpose
     setIsSubmitting(true);
 
+    if(!promptId) return alert("Prompt ID not found")
+
     try {
-      const response = await fetch("/api/prompt/new", {
-        method: "POST",
+      const response = await fetch(`/api/prompt/${promptId}`, {
+        method: "PATCH",
         body: JSON.stringify({
           prompt: post.prompt,
-          userId: session?.user.id,
           tag: post.tag,
         }),
       });
@@ -44,11 +54,11 @@ const EditPrompt = () => {
   };
   return (
     <Form
-      type="Create"
+      type="Edit"
       post={post}
       setPost={setPost}
       submitting={submitting}
-      handleSubmit={createPrompt}
+      handleSubmit={updatePrompt}
     />
   );
 };
