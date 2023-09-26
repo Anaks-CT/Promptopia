@@ -1,4 +1,4 @@
-# Todo API
+# Promptopia
 
 NextJS AI PromptSharing website. 
 
